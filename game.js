@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d');
 const TILE_SIZE = 16;
 const FLOOR_Y = canvas.height - 50;
 
-// Carregamento direto da raiz do repositório
+// Carregamento de imagens
 const playerImg = new Image();
 playerImg.src = 'player.png'; 
 
@@ -23,24 +23,38 @@ const player = {
     maxSpeed: 4
 };
 
-const keys = {
-    ArrowLeft: false,
-    ArrowRight: false
+// Estado dos comandos (funciona tanto para teclado quanto para toque)
+const inputs = {
+    left: false,
+    right: false
 };
 
+// Configuração dos controles de teclado (mantida para testes no PC)
 window.addEventListener('keydown', (e) => {
-    if (e.key in keys) keys[e.key] = true;
+    if (e.key === 'ArrowLeft') inputs.left = true;
+    if (e.key === 'ArrowRight') inputs.right = true;
 });
 
 window.addEventListener('keyup', (e) => {
-    if (e.key in keys) keys[e.key] = false;
+    if (e.key === 'ArrowLeft') inputs.left = false;
+    if (e.key === 'ArrowRight') inputs.right = false;
 });
 
+// Configuração dos controles de toque para celular
+const btnEsquerda = document.getElementById('btnEsquerda');
+const btnDireita = document.getElementById('btnDireita');
+
+btnEsquerda.addEventListener('touchstart', (e) => { e.preventDefault(); inputs.left = true; });
+btnEsquerda.addEventListener('touchend', () => inputs.left = false);
+
+btnDireita.addEventListener('touchstart', (e) => { e.preventDefault(); inputs.right = true; });
+btnDireita.addEventListener('touchend', () => inputs.right = false);
+
 function updatePhysics() {
-    if (keys.ArrowLeft) {
+    if (inputs.left) {
         player.vx -= player.acceleration;
     }
-    if (keys.ArrowRight) {
+    if (inputs.right) {
         player.vx += player.acceleration;
     }
 

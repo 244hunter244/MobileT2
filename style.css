@@ -1,19 +1,90 @@
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none; /* Evita que o jogador selecione texto acidentalmente */
+    -webkit-user-select: none;
+    touch-action: none; /* Desativa zoom e rolagem padrão do navegador ao tocar */
 }
 
 body {
-    margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     background-color: #222;
     overflow: hidden;
+    font-family: sans-serif;
+}
+
+#gameContainer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    max-width: 800px; /* Mantém a proporção do jogo original */
+    max-height: 400px;
+    aspect-ratio: 2 / 1;
 }
 
 canvas {
-    border: 4px solid #fff;
+    width: 100%;
+    height: 100%;
     background-color: #70a4ff;
     image-rendering: pixelated;
+    display: block;
+}
+
+/* Área dos controles de toque */
+.touch-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    gap: 20px;
+    z-index: 10;
+}
+
+.touch-btn {
+    width: 60px; /* Tamanho confortável para o polegar no celular */
+    height: 60px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    image-rendering: pixelated;
+    opacity: 0.7; /* Fica levemente transparente para não tapar o visual */
+}
+
+.touch-btn:active {
+    opacity: 1.0; /* Destaca quando o jogador pressiona */
+}
+
+#btnEsquerda {
+    background-image: url('esquerdaButton.png');
+}
+
+#btnDireita {
+    background-image: url('direitaButton.png');
+}
+
+/* Aviso para girar a tela caso o celular esteja em pé */
+#portraitNotice {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #111;
+    color: #fff;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 100;
+    padding: 20px;
+}
+
+@media (orientation: portrait) {
+    #portraitNotice {
+        display: flex;
+    }
 }
