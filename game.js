@@ -23,13 +23,13 @@ const player = {
     maxSpeed: 4
 };
 
-// Estado dos comandos (funciona tanto para teclado quanto para toque)
+// Estado dos comandos
 const inputs = {
     left: false,
     right: false
 };
 
-// Configuração dos controles de teclado (mantida para testes no PC)
+
 window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') inputs.left = true;
     if (e.key === 'ArrowRight') inputs.right = true;
@@ -40,7 +40,6 @@ window.addEventListener('keyup', (e) => {
     if (e.key === 'ArrowRight') inputs.right = false;
 });
 
-// Configuração dos controles de toque para celular
 const btnEsquerda = document.getElementById('btnEsquerda');
 const btnDireita = document.getElementById('btnDireita');
 

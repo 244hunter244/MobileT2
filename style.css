@@ -24,7 +24,6 @@ body {
     max-height: 400px;
     aspect-ratio: 2 / 1;
     
-    /* Move todo o bloco do jogo para cima */
     transform: translateY(-12vh); 
 }
 
@@ -37,10 +36,9 @@ canvas {
     border: 4px solid #fff;
 }
 
-/* Área dos controles de toque posicionada em relação ao container elevado */
 .touch-controls {
     position: absolute;
-    bottom: -15px; /* Ajustado para acompanhar a nova altura */
+    bottom: -15px; 
     left: 20px;
     display: flex;
     gap: 20px;
