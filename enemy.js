@@ -6,22 +6,23 @@ function getRandomPosition(min, max, offset) {
 }
 
 function spawnDeathSlime() {
-    // Cria o elemento de imagem de forma padrão para o HTML
     const img = document.createElement('img');
     img.src = 'enemys/DeathSlime.gif';
     img.style.position = 'absolute';
-    img.style.width = `${enemySize}px`;  
-    img.style.height = `${enemySize}px`; 
+    
+    // Mudado para aspas simples e (+) para evitar erros de digitação com a crase
+    img.style.width = enemySize + 'px';  
+    img.style.height = enemySize + 'px'; 
     img.style.pointerEvents = 'none';    
-    img.style.zIndex = '10'; // Força o GIF a ficar na frente do Canvas
+    img.style.zIndex = '10'; 
 
     const posX = getRandomPosition(gameArea.x, gameArea.x + gameArea.size, enemySize);
     const posY = getRandomPosition(gameArea.y, gameArea.y + gameArea.size, enemySize);
 
-    img.style.left = `${posX}px`;
-    img.style.top = `${posY}px`;
+    // Mudado aqui também para aspas simples e (+)
+    img.style.left = posX + 'px';
+    img.style.top = posY + 'px';
 
-    // Adiciona o GIF dentro do nosso novo container
     document.getElementById('game-container').appendChild(img);
 
     activeEnemies.push({
