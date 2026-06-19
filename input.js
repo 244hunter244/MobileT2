@@ -1,3 +1,7 @@
+// Cria a instância do áudio globalmente para evitar atrasos (delay) no mobile
+const killSound = new Audio('kill.mp3');
+
+// Configura o clique/toque assim que a página estiver pronta
 function initInput() {
     const container = document.getElementById('game-container');
 
@@ -16,6 +20,7 @@ function initInput() {
     }, { passive: false });
 }
 
+// Cria a espada no local do toque e a rotaciona de 0 a 180 graus
 function triggerAttackAnimation(x, y) {
     const container = document.getElementById('game-container');
     const attackImg = document.createElement('img');
@@ -29,19 +34,15 @@ function triggerAttackAnimation(x, y) {
     attackImg.style.zIndex = '30';
     attackImg.style.pointerEvents = 'none';
     attackImg.style.imageRendering = 'pixelated';
-    
-    // Configura a transição do giro de forma limpa
     attackImg.style.transition = 'transform 0.15s linear';
     attackImg.style.transform = 'rotate(0deg)';
 
-    // Se for lendária, adiciona o brilho sem estragar o transform do CSS
     if (equippedWeapon.isLegendary) {
         attackImg.style.filter = 'drop-shadow(0px 0px 6px #ffff00)';
     }
 
     container.appendChild(attackImg);
 
-    // Força o início do giro para 180 graus
     requestAnimationFrame(() => {
         attackImg.style.transform = 'rotate(180deg)';
     });
@@ -51,6 +52,7 @@ function triggerAttackAnimation(x, y) {
     }, 150);
 }
 
+// Cria o texto do dano flutuando em pixel art por 1 segundo
 function spawnDamageText(x, y, damageAmount) {
     const container = document.getElementById('game-container');
     const damageText = document.createElement('div');
@@ -79,6 +81,7 @@ function spawnDamageText(x, y, damageAmount) {
     }, 1000);
 }
 
+// Verifica se a posição do toque colidiu com a caixa de algum inimigo vivo
 function checkEnemyHit(hx, hy) {
     if (typeof checkSwordPickup === 'function' && checkSwordPickup(hx, hy)) {
         return; 
@@ -95,8 +98,12 @@ function checkEnemyHit(hx, hy) {
             enemy.hp -= currentDamage; 
             spawnDamageText(hx, hy, currentDamage);
 
-            // ... dentro da função checkEnemyHit no input.js, mude o bloco do HP <= 0 para ficar assim:
             if (enemy.hp <= 0) {
+                // --- SISTEMA DE ÁUDIO DE MORTE ---
+                killSound.currentTime = 0; // Reseta o áudio para o início (essencial para cliques rápidos)
+                killSound.play().catch(err => console.log("Áudio bloqueado pelo navegador até o primeiro clique:", err));
+                // ---------------------------------
+
                 if (typeof createDeathEffect === 'function') {
                     createDeathEffect(enemy.x, enemy.y);
                 }
@@ -105,7 +112,6 @@ function checkEnemyHit(hx, hy) {
                     addPoint();
                 }
 
-                // Guarda as posições antes de deletar o inimigo do array
                 const deadX = enemy.x;
                 const deadY = enemy.y;
 
@@ -116,7 +122,6 @@ function checkEnemyHit(hx, hy) {
                     registerKillForLoot(deadX, deadY);
                 }
 
-                // Passa as coordenadas para checar o drop obrigatório se for o fim dos 3 slimes
                 if (typeof checkNextWave === 'function') {
                     checkNextWave(deadX, deadY); 
                 }
