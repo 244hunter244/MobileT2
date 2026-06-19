@@ -50,11 +50,6 @@ function triggerAttackAnimation(x, y) {
 
 // Verifica se a posição do toque colidiu com a caixa de algum slime vivo
 function checkEnemyHit(hx, hy) {
-    if (enemy.hp <= 0) {
-    createDeathEffect(enemy.x, enemy.y); // Ativa as partículas e mancha antes de deletar
-    enemy.element.remove(); 
-    activeEnemies.splice(i, 1); 
-}
     const swordDamage = 8;
 
     // Percorre a lista de trás para frente para evitar bugs ao remover itens do array
@@ -67,10 +62,11 @@ function checkEnemyHit(hx, hy) {
             
             enemy.hp -= swordDamage; // Aplica o dano da espada
 
-            // Se a vida zerar ou negativar, destrói o inimigo
+            // Se a vida zerar ou negativar, cria os efeitos e remove o inimigo
             if (enemy.hp <= 0) {
-                enemy.element.remove(); // Remove o GIF do HTML
-                activeEnemies.splice(i, 1); // Remove do array lógico do jogo
+                createDeathEffect(enemy.x, enemy.y); // Ativa as partículas e a mancha vermelha
+                enemy.element.remove();              // Remove o GIF do HTML
+                activeEnemies.splice(i, 1);          // Remove do array lógico do jogo
             }
             break; // Interrompe para acertar apenas um inimigo por clique
         }
