@@ -95,6 +95,7 @@ function checkEnemyHit(hx, hy) {
             enemy.hp -= currentDamage; 
             spawnDamageText(hx, hy, currentDamage);
 
+            // ... dentro da função checkEnemyHit no input.js, mude o bloco do HP <= 0 para ficar assim:
             if (enemy.hp <= 0) {
                 if (typeof createDeathEffect === 'function') {
                     createDeathEffect(enemy.x, enemy.y);
@@ -104,15 +105,20 @@ function checkEnemyHit(hx, hy) {
                     addPoint();
                 }
 
-                if (typeof registerKillForLoot === 'function') {
-                    registerKillForLoot(enemy.x, enemy.y);
-                }
+                // Guarda as posições antes de deletar o inimigo do array
+                const deadX = enemy.x;
+                const deadY = enemy.y;
 
                 enemy.element.remove();              
                 activeEnemies.splice(i, 1);          
 
+                if (typeof registerKillForLoot === 'function') {
+                    registerKillForLoot(deadX, deadY);
+                }
+
+                // Passa as coordenadas para checar o drop obrigatório se for o fim dos 3 slimes
                 if (typeof checkNextWave === 'function') {
-                    checkNextWave(); 
+                    checkNextWave(deadX, deadY); 
                 }
             }
             break; 

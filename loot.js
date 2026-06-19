@@ -12,17 +12,27 @@ function registerKillForLoot(x, y) {
     }
 }
 
-// Cria a espada física no chão do jogo
+// Força o drop obrigatório (chamado quando os 3 slimes iniciais morrem)
+function forceInitialDrop(x, y) {
+    spawnSwordDrop(x, y);
+}
+
+// Cria la espada física no chão do jogo com dano escalonável
 function spawnSwordDrop(x, y) {
     const container = document.getElementById('game-container');
     
-    // Define o ID da imagem de 01 a 40 formatando com zero à esquerda se necessário
+    // Define o ID da imagem de 01 a 40
     const randomNum = Math.floor(Math.random() * 40) + 1;
     const swordId = randomNum < 10 ? '0' + randomNum : '' + randomNum;
     
-    // Atributos aleatórios da arma
-    const swordDamage = Math.floor(Math.random() * (50 - 10 + 1)) + 10;
-    const isLegendary = swordDamage > 30;
+    // A cada 30 pontos, o mínimo (10) e o máximo (50) aumentam em +10, por exemplo
+    // playerPoints vem do arquivo hud.js
+    const dutoDeAumento = Math.floor(playerPoints / 30) * 10; 
+    const minDamage = 10 + dutoDeAumento;
+    const maxDamage = 50 + dutoDeAumento;
+
+    const swordDamage = Math.floor(Math.random() * (maxDamage - minDamage + 1)) + minDamage;
+    const isLegendary = swordDamage > 30; // Mantém a regra: maior que 30 brilha em dourado
 
     const img = document.createElement('img');
     img.src = 'swords/' + swordId + '.png';
@@ -35,7 +45,6 @@ function spawnSwordDrop(x, y) {
     img.style.imageRendering = 'pixelated';
     img.style.cursor = 'pointer';
 
-    // Aplica a animação de brilho (CSS de filtro) baseado na raridade
     if (isLegendary) {
         img.style.filter = 'drop-shadow(0px 0px 8px #ffff00) drop-shadow(0px 0px 2px #ffaa00)';
     } else {
@@ -44,7 +53,6 @@ function spawnSwordDrop(x, y) {
 
     container.appendChild(img);
 
-    // Registra no array lógico de itens coletáveis
     droppedSwords.push({
         element: img,
         id: swordId,
@@ -55,9 +63,6 @@ function spawnSwordDrop(x, y) {
         size: 64
     });
 }
-
-// Verifica se o jogador clicou/toucou em alguma espada no chão para equipar
-// ... (mantenha o topo e a função spawnSwordDrop igual ao passo anterior) ...
 
 function checkSwordPickup(hx, hy) {
     for (let i = droppedSwords.length - 1; i >= 0; i--) {
@@ -73,8 +78,6 @@ function checkSwordPickup(hx, hy) {
 
             if (hudWeaponImageElement) {
                 hudWeaponImageElement.src = equippedWeapon.src;
-                
-                // Mantém a rotação de -20deg intacta ao aplicar ou remover o filtro de brilho
                 hudWeaponImageElement.style.transform = 'rotate(-20deg)'; 
                 
                 if (item.isLegendary) {

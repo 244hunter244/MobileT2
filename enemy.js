@@ -1,7 +1,7 @@
 const activeEnemies = [];
 const enemySize = 80; 
+let initialSlimesKilled = 0; // Rastreia se os 3 primeiros slimes já morreram
 
-// Dicionário com a vida (HP) customizada para cada monstro da sua lista
 const enemyDatabase = {
     'DeathSlime': 15,
     'BlindedGrimlock': 25,
@@ -34,12 +34,13 @@ function isOverlapping(x, y) {
     return false;
 }
 
-// Sorteia e spawna um inimigo específico ou aleatório
 function spawnEnemy(forcedName = null) {
-    // Se não forçar um nome (como no início), escolhe um aleatório da lista
     const enemyNames = Object.keys(enemyDatabase);
     const chosenName = forcedName || enemyNames[Math.floor(Math.random() * enemyNames.length)];
-    const maxHp = enemyDatabase[chosenName];
+    
+    // A cada 20 pontos adiciona +15 de vida base a todos os inimigos que nascerem
+    const hpAumento = Math.floor(playerPoints / 20) * 15;
+    const maxHp = enemyDatabase[chosenName] + hpAumento;
 
     const img = document.createElement('img');
     img.src = 'enemys/' + chosenName + '.gif';
@@ -72,21 +73,29 @@ function spawnEnemy(forcedName = null) {
     });
 }
 
-// Inicializa o jogo trazendo apenas os 3 DeathSlimes como você pediu
 function initEnemies() {
+    initialSlimesKilled = 0;
     for (let i = 0; i < 3; i++) {
         spawnEnemy('DeathSlime');
     }
 }
 
-// Função que verifica se o mapa esvaziou e traz a nova horda de 5 a 13 monstros
-function checkNextWave() {
+function checkNextWave(lastX, lastY) {
+    // Se ainda está na primeira horda, conta a baixa
+    if (initialSlimesKilled < 3) {
+        initialSlimesKilled++;
+        // Quando o terceiro slime inicial morre, dropa obrigatoriamente uma espada no local da morte
+        if (initialSlimesKilled === 3) {
+            if (typeof forceInitialDrop === 'function') {
+                forceInitialDrop(lastX, lastY);
+            }
+        }
+    }
+
     if (activeEnemies.length === 0) {
-        // Sorteia uma quantidade entre 5 e 13
         const waveSize = Math.floor(Math.random() * (13 - 5 + 1)) + 5;
-        
         for (let i = 0; i < waveSize; i++) {
-            spawnEnemy(); // Spawna monstros variados da lista
+            spawnEnemy(); 
         }
     }
 }
