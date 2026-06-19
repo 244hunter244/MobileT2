@@ -1,41 +1,26 @@
-// Carrega a textura do repositório
-const stoneTile = new Image();
-stoneTile.src = 'stonetile.png'; 
-
-stoneTile.onload = () => {
-    render();
-    initEnemies(); // Chama a criação dos 3 DeathSlimes após desenhar o cenário
-};
-
-// Garante que o desenho só acontece após a imagem carregar
-stoneTile.onload = () => {
-    render();
-};
-
-function drawBackground() {
+// Função que desenha o cenário
+function render() {
     // Limpa a tela com fundo preto
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
 
-function drawGameBounds() {
-    const tileSize = 32; // Tamanho visual de cada tile da borda
+    const tileSize = 32; // Tamanho de cada tile da borda
 
-    // Desenha as linhas horizontal superior e inferior da borda
+    // Desenha as bordas horizontais
     for (let i = 0; i < gameArea.size; i += tileSize) {
         ctx.drawImage(stoneTile, gameArea.x + i, gameArea.y, tileSize, tileSize);
         ctx.drawImage(stoneTile, gameArea.x + i, gameArea.y + gameArea.size - tileSize, tileSize, tileSize);
     }
 
-    // Desenha as linhas verticais esquerda e direita da borda
+    // Desenha as bordas verticais
     for (let i = 0; i < gameArea.size; i += tileSize) {
         ctx.drawImage(stoneTile, gameArea.x, gameArea.y + i, tileSize, tileSize);
         ctx.drawImage(stoneTile, gameArea.x + gameArea.size - tileSize, gameArea.y + i, tileSize, tileSize);
     }
 }
 
-// Função principal de renderização
-function render() {
-    drawBackground();
-    drawGameBounds();
-}
+// Força o jogo a inicializar assim que a janela do navegador carregar completamente
+window.onload = () => {
+    render();
+    initEnemies(); // Cria os slimes
+};
