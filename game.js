@@ -26,5 +26,6 @@ function render() {
 // Força o jogo a inicializar assim que a janela do navegador carregar completamente
 window.onload = () => {
     render();
-    initEnemies(); // Cria os slimes agora que a borda não vai travar o código
+    initEnemies();
+    createWeaponHUD(); // Inicializa o indicador da espada equipada
 };
