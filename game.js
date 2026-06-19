@@ -1,3 +1,18 @@
+// --- SISTEMA DE MÚSICA DE FUNDO ---
+const bgMusic = new Audio('music.mp3');
+bgMusic.loop = true;        // Faz a música tocar infinitamente
+bgMusic.volume = 0.5;       // Define o volume em 50%
+
+// Tenta iniciar a música assim que o jogador interagir com a tela (exigência dos navegadores)
+window.addEventListener('pointerdown', () => {
+    // Se a música já estiver tocando, não faz nada, senão inicia
+    if (bgMusic.paused) {
+        bgMusic.play().catch(err => console.log("Aguardando interação para tocar música:", err));
+    }
+}, { once: true }); // O 'once: true' garante que esse evento só rode no primeiríssimo toque
+// ----------------------------------
+
+// ... restante do seu código do game.js atual (gameLoop, window.onload, etc.) ...
 // Carrega a textura do repositório (Essa linha faltou no topo antes)
 const stoneTile = new Image();
 stoneTile.src = 'stonetile.png'; 
