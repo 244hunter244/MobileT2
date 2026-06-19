@@ -1,3 +1,7 @@
+// Carrega a textura do repositório (Essa linha faltou no topo antes)
+const stoneTile = new Image();
+stoneTile.src = 'stonetile.png'; 
+
 // Função que desenha o cenário
 function render() {
     // Limpa a tela com fundo preto
@@ -22,5 +26,5 @@ function render() {
 // Força o jogo a inicializar assim que a janela do navegador carregar completamente
 window.onload = () => {
     render();
-    initEnemies(); // Cria os slimes
+    initEnemies(); // Cria os slimes agora que a borda não vai travar o código
 };
