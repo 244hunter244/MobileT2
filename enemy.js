@@ -1,5 +1,5 @@
 const activeEnemies = [];
-const enemySize = 80; 
+const enemySize = 60; 
 
 function getRandomPosition(min, max, offset) {
     return Math.random() * (max - min - offset - 64) + min + 32;
