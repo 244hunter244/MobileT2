@@ -52,32 +52,31 @@ function triggerAttackAnimation(x, y) {
 function checkEnemyHit(hx, hy) {
     const swordDamage = 8;
 
-    // Percorre a lista de trás para frente para evitar bugs de remoção
     for (let i = activeEnemies.length - 1; i >= 0; i--) {
         const enemy = activeEnemies[i];
 
-        // Checa se o clique ocorreu dentro do tamanho (80x80) do inimigo
         if (hx >= enemy.x && hx <= enemy.x + enemySize &&
             hy >= enemy.y && hy <= enemy.y + enemySize) {
             
-            enemy.hp -= swordDamage; // Aplica o dano de 8
+            enemy.hp -= swordDamage; 
 
-            // Se a vida zerar, elimina o monstro e pontua
             if (enemy.hp <= 0) {
-                // Cria os efeitos visuais pixelados de poça e gotas
                 if (typeof createDeathEffect === 'function') {
                     createDeathEffect(enemy.x, enemy.y);
                 }
                 
-                // Soma o ponto no HUD (Verifica se a função existe globalmente)
+                // Força o incremento de pontos diretamente no escopo global
                 if (typeof addPoint === 'function') {
                     addPoint();
                 }
 
-                enemy.element.remove();      // Tira o GIF da tela
-                activeEnemies.splice(i, 1);  // Limpa o array
+                enemy.element.remove();              
+                activeEnemies.splice(i, 1);          
+
+                // Checa imediatamente se era o último inimigo para invocar a horda aleatória
+                checkNextWave(); 
             }
-            break; // Garante que apenas 1 slime sofre dano por clique
+            break; 
         }
     }
 }
