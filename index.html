@@ -6,14 +6,19 @@
     <title>Meu Jogo Mobile</title>
     <style>
         body { margin: 0; background-color: black; overflow: hidden; }
-        canvas { display: block; margin: 0 auto; }
+        /* Cria o container que vai alinhar o canvas e os GIFs no mesmo lugar */
+        #game-container { position: relative; width: 100vw; height: 100vh; }
+        /* Garante que o canvas seja a camada de baixo (z-index: 1) */
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
     
     <script src="config.js"></script>
-    <script src="game.js"></script>
     <script src="enemy.js"></script>
+    <script src="game.js"></script>
 </body>
 </html>
