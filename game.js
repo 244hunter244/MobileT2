@@ -24,8 +24,10 @@ function render() {
 }
 
 // Força o jogo a inicializar assim que a janela do navegador carregar completamente
+
 window.onload = () => {
     render();
     initEnemies();
-    createWeaponHUD(); // Inicializa o indicador da espada equipada
+    createWeaponHUD();
+    initInput(); // Ativa os controles de toque/clique
 };
