@@ -1,10 +1,12 @@
 // A arma agora guarda também o seu dano atual
+// Variável da arma atualizada com dano inicial de 8 e sem brilho de início
 let equippedWeapon = {
     id: '03',
     src: 'swords/03.png',
-    damage: 8
+    damage: 8,
+    isLegendary: false
 };
-
+// ... todo o resto do hud.js continua exatamente igual ...
 let hudWeaponImageElement = null;
 let playerPoints = 0;
 let pointsValueElement = null;

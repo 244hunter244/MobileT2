@@ -65,69 +65,80 @@ function initEnemies() {
 }
 
 // Executa a lógica de criar uma nova horda de monstros normais
-function triggerNextMonsterWave() {
-    const waveSize = Math.floor(Math.random() * (13 - 5 + 1)) + 5;
-    for (let i = 0; i < waveSize; i++) {
-        spawnEnemy();
-    }
-    waveCount++;
-}
-
-function checkNextWave() {
-    if (activeEnemies.length === 0) {
-        // Se for logo após os 3 Slimes iniciais (waveCount === 0) OU a cada 10 ondas completadas
-        if (waveCount === 0 || waveCount % 10 === 0) {
-            spawnDroppedWeapon();
-        } else {
-            triggerNextMonsterWave();
-        }
-    }
-}
-
-// Instancia a nova espada no centro geométrico do mapa com efeito de pulso luminoso
-function spawnDroppedWeapon() {
-    isWeaponDropped = true;
+function triggerAttackAnimation(x, y) {
     const container = document.getElementById('game-container');
+    const attackImg = document.createElement('img');
     
-    // Lista de supostos IDs disponíveis na sua pasta de assets (ex: de '01' a '10')
-    const weaponIds = ['01', '02', '04', '05', '06', '07', '08', '09', '10'];
-    const randomId = weaponIds[Math.floor(Math.random() * weaponIds.length)];
-    // Sorteia um dano aleatório entre 10 e 25 para a nova arma
-    const randomDamage = Math.floor(Math.random() * (25 - 10 + 1)) + 10;
+    attackImg.src = equippedWeapon.src;
+    attackImg.style.position = 'absolute';
+    attackImg.style.width = '80px';
+    attackImg.style.height = '80px';
+    attackImg.style.left = (x - 40) + 'px';
+    attackImg.style.top = (y - 40) + 'px';
+    attackImg.style.zIndex = '30';
+    attackImg.style.pointerEvents = 'none';
+    attackImg.style.imageRendering = 'pixelated';
+    attackImg.style.transition = 'transform 0.15s linear';
+    attackImg.style.transform = 'rotate(0deg)';
 
-    const groundWeapon = document.createElement('img');
-    groundWeapon.id = 'dropped-weapon-item';
-    groundWeapon.src = 'swords/' + randomId + '.png';
-    groundWeapon.style.position = 'absolute';
-    groundWeapon.style.width = '70px';
-    groundWeapon.style.height = '70px';
-    
-    // Centraliza perfeitamente no meio da gameArea
-    const centerX = gameArea.x + (gameArea.size / 2) - 35;
-    const centerY = gameArea.y + (gameArea.size / 2) - 35;
-    groundWeapon.style.left = centerX + 'px';
-    groundWeapon.style.top = centerY + 'px';
-    groundWeapon.style.zIndex = '15';
-    groundWeapon.style.imageRendering = 'pixelated';
-    
-    // Filtros CSS para criar o brilho branco intenso pulsante
-    groundWeapon.style.filter = 'drop-shadow(0 0 12px rgba(255, 255, 255, 1)) brightness(1.3)';
-    groundWeapon.style.transition = 'transform 0.4s ease-in-out';
-    
-    // Cria animação simples de flutuar/pulsar sem precisar de CSS externo
-    let pulseDirection = 1;
-    const pulseInterval = setInterval(() => {
-        if (!document.getElementById('dropped-weapon-item')) {
-            clearInterval(pulseInterval);
-            return;
+    // Se a arma equipada for lendária, a própria animação de ataque ganha o brilho dourado
+    if (equippedWeapon.isLegendary) {
+        attackImg.style.filter = 'drop-shadow(0px 0px 6px #ffff00)';
+    }
+
+    container.appendChild(attackImg);
+
+    requestAnimationFrame(() => {
+        attackImg.style.transform = 'rotate(180deg)';
+    });
+
+    setTimeout(() => {
+        attackImg.remove();
+    }, 150);
+}
+
+function checkEnemyHit(hx, hy) {
+    // 1º Passo: Checar se o clique foi para coletar uma espada no chão
+    if (typeof checkSwordPickup === 'function' && checkSwordPickup(hx, hy)) {
+        return; // Interrompe a função para não golpear ao coletar o item
+    }
+
+    // Usa dinamicamente o dano da arma atualmente equipada (começa com 8)
+    const currentDamage = equippedWeapon.damage;
+
+    for (let i = activeEnemies.length - 1; i >= 0; i--) {
+        const enemy = activeEnemies[i];
+
+        if (hx >= enemy.x && hx <= enemy.x + enemySize &&
+            hy >= enemy.y && hy <= enemy.y + enemySize) {
+            
+            enemy.hp -= currentDamage; 
+
+            // Exibe o número de dano atualizado flutuando em branco
+            spawnDamageText(hx, hy, currentDamage);
+
+            if (enemy.hp <= 0) {
+                if (typeof createDeathEffect === 'function') {
+                    createDeathEffect(enemy.x, enemy.y);
+                }
+                
+                if (typeof addPoint === 'function') {
+                    addPoint();
+                }
+
+                // Notifica o sistema de loot para contabilizar a morte e possivelmente dropar um item
+                if (typeof registerKillForLoot === 'function') {
+                    registerKillForLoot(enemy.x, enemy.y);
+                }
+
+                enemy.element.remove();              
+                activeEnemies.splice(i, 1);          
+
+                if (typeof checkNextWave === 'function') {
+                    checkNextWave(); 
+                }
+            }
+            break; 
         }
-        groundWeapon.style.transform = `scale(${1 + (0.1 * pulseDirection)})`;
-        pulseDirection *= -1;
-    }, 400);
-
-    // Salva os dados sorteados na própria tag HTML para resgatarmos no clique
-    groundWeapon.dataset.weaponId = randomId;
-    groundWeapon.dataset.weaponDamage = randomDamage;
-
-    container.appendChild(groundWeapon);
+    }
 }
