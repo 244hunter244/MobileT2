@@ -50,6 +50,11 @@ function triggerAttackAnimation(x, y) {
 
 // Verifica se a posição do toque colidiu com a caixa de algum slime vivo
 function checkEnemyHit(hx, hy) {
+    if (enemy.hp <= 0) {
+    createDeathEffect(enemy.x, enemy.y); // Ativa as partículas e mancha antes de deletar
+    enemy.element.remove(); 
+    activeEnemies.splice(i, 1); 
+}
     const swordDamage = 8;
 
     // Percorre a lista de trás para frente para evitar bugs ao remover itens do array

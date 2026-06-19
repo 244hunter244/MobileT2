@@ -24,10 +24,17 @@ function render() {
 }
 
 // Força o jogo a inicializar assim que a janela do navegador carregar completamente
+function gameLoop() {
+    render();          // Desenha o fundo e bordas
+    updateEffects();   // Move as partículas
+    drawEffects();     // Desenha as partículas no canvas
+    
+    requestAnimationFrame(gameLoop);
+}
 
 window.onload = () => {
-    render();
     initEnemies();
     createWeaponHUD();
-    initInput(); // Ativa os controles de toque/clique
+    initInput();
+    gameLoop(); // Substitui o render() isolado pelo loop contínuo
 };
