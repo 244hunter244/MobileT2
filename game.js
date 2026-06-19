@@ -2,6 +2,11 @@
 const stoneTile = new Image();
 stoneTile.src = 'stonetile.png'; 
 
+stoneTile.onload = () => {
+    render();
+    initEnemies(); // Chama a criação dos 3 DeathSlimes após desenhar o cenário
+};
+
 // Garante que o desenho só acontece após a imagem carregar
 stoneTile.onload = () => {
     render();
