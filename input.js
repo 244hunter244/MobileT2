@@ -2,19 +2,22 @@
 function initInput() {
     const container = document.getElementById('game-container');
 
-    // Funciona tanto para clique de mouse quanto para toque no celular
+    // 'pointerdown' é o melhor evento para celular: ele junta o Touch do dedo e o Clique do mouse sem delay
     container.addEventListener('pointerdown', (e) => {
+        // Impede comportamentos estranhos de zoom e scroll no celular ao clicar rápido
+        e.preventDefault(); 
+
         const clickX = e.clientX;
         const clickY = e.clientY;
 
-        // Verifica se o toque aconteceu estritamente dentro da gameArea (com desconto das bordas)
+        // Verifica se o toque aconteceu dentro da gameArea (com desconto das bordas de pedra)
         if (clickX >= gameArea.x + 32 && clickX <= gameArea.x + gameArea.size - 32 &&
             clickY >= gameArea.y + 32 && clickY <= gameArea.y + gameArea.size - 32) {
             
             triggerAttackAnimation(clickX, clickY);
             checkEnemyHit(clickX, clickY);
         }
-    });
+    }, { passive: false }); // Permite o preventDefault() rodar liso no mobile
 }
 
 // Cria a espada no local do toque e a rotaciona de 0 a 180 graus
@@ -26,23 +29,20 @@ function triggerAttackAnimation(x, y) {
     attackImg.style.position = 'absolute';
     attackImg.style.width = '80px';
     attackImg.style.height = '80px';
-    // Centraliza o meio da espada no ponto exato do toque
     attackImg.style.left = (x - 40) + 'px';
     attackImg.style.top = (y - 40) + 'px';
     attackImg.style.zIndex = '30';
     attackImg.style.pointerEvents = 'none';
     attackImg.style.imageRendering = 'pixelated';
-    attackImg.style.transition = 'transform 0.15s linear'; // Duração do giro
+    attackImg.style.transition = 'transform 0.15s linear';
     attackImg.style.transform = 'rotate(0deg)';
 
     container.appendChild(attackImg);
 
-    // Força o navegador a processar o estado inicial antes de girar
     requestAnimationFrame(() => {
         attackImg.style.transform = 'rotate(180deg)';
     });
 
-    // Remove a espada da tela após a animação acabar
     setTimeout(() => {
         attackImg.remove();
     }, 150);
@@ -52,23 +52,32 @@ function triggerAttackAnimation(x, y) {
 function checkEnemyHit(hx, hy) {
     const swordDamage = 8;
 
-    // Percorre a lista de trás para frente para evitar bugs ao remover itens do array
+    // Percorre a lista de trás para frente para evitar bugs de remoção
     for (let i = activeEnemies.length - 1; i >= 0; i--) {
         const enemy = activeEnemies[i];
 
-        // Checa se o clique ocorreu dentro da área visual de 80x80 do inimigo
+        // Checa se o clique ocorreu dentro do tamanho (80x80) do inimigo
         if (hx >= enemy.x && hx <= enemy.x + enemySize &&
             hy >= enemy.y && hy <= enemy.y + enemySize) {
             
-            enemy.hp -= swordDamage; // Aplica o dano da espada
+            enemy.hp -= swordDamage; // Aplica o dano de 8
 
-            // Se a vida zerar ou negativar, cria os efeitos e remove o inimigo
+            // Se a vida zerar, elimina o monstro e pontua
             if (enemy.hp <= 0) {
-                createDeathEffect(enemy.x, enemy.y); // Ativa as partículas e a mancha vermelha
-                enemy.element.remove();              // Remove o GIF do HTML
-                activeEnemies.splice(i, 1);          // Remove do array lógico do jogo
+                // Cria os efeitos visuais pixelados de poça e gotas
+                if (typeof createDeathEffect === 'function') {
+                    createDeathEffect(enemy.x, enemy.y);
+                }
+                
+                // Soma o ponto no HUD (Verifica se a função existe globalmente)
+                if (typeof addPoint === 'function') {
+                    addPoint();
+                }
+
+                enemy.element.remove();      // Tira o GIF da tela
+                activeEnemies.splice(i, 1);  // Limpa o array
             }
-            break; // Interrompe para acertar apenas um inimigo por clique
+            break; // Garante que apenas 1 slime sofre dano por clique
         }
     }
 }
