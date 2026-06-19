@@ -26,12 +26,13 @@ function createWeaponHUD() {
     hudBox.style.zIndex = '20'; 
     hudBox.style.border = '2px solid #555';
 
-    // Cria o elemento da imagem e guarda na nossa variável global
+    // Cria o elemento da imagem e aplica a rotação
     hudWeaponImageElement = document.createElement('img');
     hudWeaponImageElement.src = equippedWeapon.src;
     hudWeaponImageElement.style.width = iconSize + 'px';
     hudWeaponImageElement.style.height = iconSize + 'px';
     hudWeaponImageElement.style.imageRendering = 'pixelated'; 
+    hudWeaponImageElement.style.transform = 'rotate(-20deg)'; // Gira a espada 20 graus para a esquerda
 
     hudBox.appendChild(hudWeaponImageElement);
     container.appendChild(hudBox);
