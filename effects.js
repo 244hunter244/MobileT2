@@ -1,23 +1,30 @@
 const particles = [];
 const bloodStains = [];
 
-// Cria a explosão de 5 gotas e a mancha no chão
 function createDeathEffect(ex, ey) {
-    const centerX = ex + 40; // Centraliza no monstro (80px / 2)
+    const centerX = ex + 40; 
     const centerY = ey + 40;
 
-    // 1. Cria a mancha no chão
+    // Salva posições de "sub-poças" para criar o formato de mancha orgânica
+    const blobs = [];
+    const numBlobs = Math.floor(Math.random() * 3) + 3; // de 3 a 5 círculos por poça
+    
+    for(let i=0; i<numBlobs; i++) {
+        blobs.push({
+            offsetX: (Math.random() * 40) - 20,
+            offsetY: (Math.random() * 40) - 20,
+            radius: (Math.random() * 15) + 10
+        });
+    }
+
     bloodStains.push({
-        x: ex,
-        y: ey,
-        size: 80,
+        x: centerX,
+        y: centerY,
+        blobs: blobs,
         opacity: 1,
-        // Sorteia uma variação visual para a mancha não ser sempre igual
-        style: Math.floor(Math.random() * 3), 
         spawnTime: Date.now()
     });
 
-    // 2. Cria as 5 partículas/gotas
     for (let i = 0; i < 5; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.random() * 4 + 2;
@@ -27,53 +34,44 @@ function createDeathEffect(ex, ey) {
             y: centerY,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
-            size: Math.random() * 4 + 4, // Tamanho do pixel da gota
+            size: Math.random() * 4 + 4, 
             opacity: 1
         });
     }
 }
 
-// Atualiza a posição das partículas e o tempo das manchas
 function updateEffects() {
-    // Atualiza gotas
     for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
-        p.opacity -= 0.04; // Desaparece gradualmente
+        p.opacity -= 0.04; 
         if (p.opacity <= 0) particles.splice(i, 1);
     }
 
-    // Atualiza manchas (somem após 4 segundos)
     for (let i = bloodStains.length - 1; i >= 0; i--) {
         const s = bloodStains[i];
         if (Date.now() - s.spawnTime > 4000) {
-            s.opacity -= 0.02; // Efeito de sumir sumindo devagar
+            s.opacity -= 0.02; 
             if (s.opacity <= 0) bloodStains.splice(i, 1);
         }
     }
 }
 
-// Desenha tudo pixelado no Canvas
 function drawEffects() {
-    // Desativa o antialiasing para manter o efeito pixel art nítido
+    // Força visualização pixelada sem suavizar bordas
     ctx.imageSmoothingEnabled = false;
 
-    // Desenha as manchas de formato aleatório
+    // Desenha as poças arredondadas e orgânicas
     bloodStains.forEach(s => {
-        ctx.fillStyle = `rgba(170, 0, 0, ${s.opacity})`;
-        if (s.style === 0) {
-            ctx.fillRect(s.x + 10, s.y + 20, s.size - 20, s.size - 40);
-            ctx.fillRect(s.x + 20, s.y + 10, s.size - 40, s.size - 20);
-        } else if (s.style === 1) {
-            ctx.fillRect(s.x + 15, s.y + 15, s.size - 30, s.size - 30);
-        } else {
-            ctx.fillRect(s.x + 5, s.y + 25, s.size - 10, s.size - 50);
-            ctx.fillRect(s.x + 25, s.y + 5, s.size - 50, s.size - 10);
-        }
+        ctx.fillStyle = `rgba(160, 0, 0, ${s.opacity})`;
+        s.blobs.forEach(b => {
+            ctx.beginPath();
+            ctx.arc(s.x + b.offsetX, s.y + b.offsetY, b.radius, 0, Math.PI * 2);
+            ctx.fill();
+        });
     });
 
-    // Desenha as gotas/partículas vermelhas
     particles.forEach(p => {
         ctx.fillStyle = `rgba(210, 0, 0, ${p.opacity})`;
         ctx.fillRect(Math.floor(p.x), Math.floor(p.y), Math.floor(p.size), Math.floor(p.size));

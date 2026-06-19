@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Meu Jogo Mobile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; background-color: black; overflow: hidden; }
-        /* Cria o container que vai alinhar o canvas e os GIFs no mesmo lugar */
         #game-container { position: relative; width: 100vw; height: 100vh; }
-        /* Garante que o canvas seja a camada de baixo (z-index: 1) */
         canvas { position: absolute; top: 0; left: 0; z-index: 1; }
     </style>
 </head>
@@ -19,9 +18,9 @@
     
     <script src="config.js"></script>
     <script src="enemy.js"></script>
-    <script src="game.js"></script>
     <script src="hud.js"></script>
-    <script src="input.js"></script>
     <script src="effects.js"></script>
+    <script src="input.js"></script>
+    <script src="game.js"></script>
 </body>
 </html>
