@@ -1,12 +1,11 @@
-// A arma agora guarda também o seu dano atual
-// Variável da arma atualizada com dano inicial de 8 e sem brilho de início
+// Variável da arma com dano inicial de 8 e sem brilho de início
 let equippedWeapon = {
     id: '03',
     src: 'swords/03.png',
     damage: 8,
     isLegendary: false
 };
-// ... todo o resto do hud.js continua exatamente igual ...
+
 let hudWeaponImageElement = null;
 let playerPoints = 0;
 let pointsValueElement = null;
@@ -23,7 +22,7 @@ function createWeaponHUD() {
     hudBox.style.width = hudSize + 'px';
     hudBox.style.height = hudSize + 'px';
     hudBox.style.backgroundImage = "url('stonetile.png')"; 
-    hudBox.style.backgroundSize = 'contain';
+    hudBox.style.backgroundSize = 'cover'; // Garante que a pedra preencha todo o quadrado
     hudBox.style.display = 'flex';
     hudBox.style.justifyContent = 'center';
     hudBox.style.alignItems = 'center';
@@ -35,7 +34,7 @@ function createWeaponHUD() {
     hudWeaponImageElement.style.width = iconSize + 'px';
     hudWeaponImageElement.style.height = iconSize + 'px';
     hudWeaponImageElement.style.imageRendering = 'pixelated'; 
-    hudWeaponImageElement.style.transform = 'rotate(-20deg)'; 
+    hudWeaponImageElement.style.transform = 'rotate(-20deg)'; // Mantém o giro de 20 graus para a esquerda
 
     hudBox.appendChild(hudWeaponImageElement);
     container.appendChild(hudBox);
@@ -45,6 +44,7 @@ function createWeaponHUD() {
 
 function createPointsHUD() {
     const container = document.getElementById('game-container');
+
     const scoreContainer = document.createElement('div');
     scoreContainer.style.position = 'absolute';
     scoreContainer.style.top = '20px';
@@ -73,16 +73,5 @@ function addPoint() {
     playerPoints += 1;
     if (pointsValueElement) {
         pointsValueElement.innerText = playerPoints;
-    }
-}
-
-// Atualiza o ID, a Imagem no HUD e o Dano em todos os scripts do jogo
-function changeEquippedWeapon(newId, newDamage) {
-    equippedWeapon.id = newId;
-    equippedWeapon.src = 'swords/' + newId + '.png';
-    equippedWeapon.damage = newDamage;
-    
-    if (hudWeaponImageElement) {
-        hudWeaponImageElement.src = equippedWeapon.src;
     }
 }

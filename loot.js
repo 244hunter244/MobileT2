@@ -57,24 +57,26 @@ function spawnSwordDrop(x, y) {
 }
 
 // Verifica se o jogador clicou/toucou em alguma espada no chão para equipar
+// ... (mantenha o topo e a função spawnSwordDrop igual ao passo anterior) ...
+
 function checkSwordPickup(hx, hy) {
     for (let i = droppedSwords.length - 1; i >= 0; i--) {
         const item = droppedSwords[i];
 
-        // Checa se o clique ocorreu dentro do quadrado da espada dropada
         if (hx >= item.x && hx <= item.x + item.size &&
             hy >= item.y && hy <= item.y + item.size) {
             
-            // Substitui os dados da arma equipada globalmente
             equippedWeapon.id = item.id;
             equippedWeapon.src = 'swords/' + item.id + '.png';
             equippedWeapon.damage = item.damage;
             equippedWeapon.isLegendary = item.isLegendary;
 
-            // Atualiza o HUD visual na hora
             if (hudWeaponImageElement) {
                 hudWeaponImageElement.src = equippedWeapon.src;
-                // Se a nova arma for lendária, faz o ícone do HUD brilhar em dourado permanentemente
+                
+                // Mantém a rotação de -20deg intacta ao aplicar ou remover o filtro de brilho
+                hudWeaponImageElement.style.transform = 'rotate(-20deg)'; 
+                
                 if (item.isLegendary) {
                     hudWeaponImageElement.style.filter = 'drop-shadow(0px 0px 6px #ffff00)';
                 } else {
@@ -82,10 +84,9 @@ function checkSwordPickup(hx, hy) {
                 }
             }
 
-            // Remove o item do chão
             item.element.remove();
             droppedSwords.splice(i, 1);
-            return true; // Bloqueia o ataque para apenas coletar a espada
+            return true; 
         }
     }
     return false;
