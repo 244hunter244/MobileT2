@@ -1,82 +1,133 @@
-// Configura o clique/toque assim que a página estiver pronta
-function initInput() {
-    const container = document.getElementById('game-container');
+const activeEnemies = [];
+const enemySize = 80; 
 
-    // 'pointerdown' é o melhor evento para celular: ele junta o Touch do dedo e o Clique do mouse sem delay
-    container.addEventListener('pointerdown', (e) => {
-        // Impede comportamentos estranhos de zoom e scroll no celular ao clicar rápido
-        e.preventDefault(); 
+// Contador para saber quantas hordas o jogador já derrotou
+let waveCount = 0;
+let isWeaponDropped = false;
 
-        const clickX = e.clientX;
-        const clickY = e.clientY;
+const enemyDatabase = {
+    'DeathSlime': 15, 'BlindedGrimlock': 25, 'BloodshotEye': 20, 'BrawnyOgre': 45,
+    'CrimsonSlaad': 35, 'CrushingCyclops': 50, 'FungalMyconid': 20, 'HumongousEttin': 60,
+    'MurkySlaad': 30, 'OchreJelly': 25, 'OcularWatcher': 40, 'RedCap': 15,
+    'ShriekerMushroom': 10, 'StoneTroll': 55, 'SwampTroll': 45
+};
 
-        // Verifica se o toque aconteceu dentro da gameArea (com desconto das bordas de pedra)
-        if (clickX >= gameArea.x + 32 && clickX <= gameArea.x + gameArea.size - 32 &&
-            clickY >= gameArea.y + 32 && clickY <= gameArea.y + gameArea.size - 32) {
-            
-            triggerAttackAnimation(clickX, clickY);
-            checkEnemyHit(clickX, clickY);
-        }
-    }, { passive: false }); // Permite o preventDefault() rodar liso no mobile
+function getRandomPosition(min, max, offset) {
+    return Math.random() * (max - min - offset - 64) + min + 32;
 }
 
-// Cria a espada no local do toque e a rotaciona de 0 a 180 graus
-function triggerAttackAnimation(x, y) {
-    const container = document.getElementById('game-container');
-    const attackImg = document.createElement('img');
-    
-    attackImg.src = equippedWeapon.src;
-    attackImg.style.position = 'absolute';
-    attackImg.style.width = '80px';
-    attackImg.style.height = '80px';
-    attackImg.style.left = (x - 40) + 'px';
-    attackImg.style.top = (y - 40) + 'px';
-    attackImg.style.zIndex = '30';
-    attackImg.style.pointerEvents = 'none';
-    attackImg.style.imageRendering = 'pixelated';
-    attackImg.style.transition = 'transform 0.15s linear';
-    attackImg.style.transform = 'rotate(0deg)';
+function isOverlapping(x, y) {
+    for (let enemy of activeEnemies) {
+        const distX = x - enemy.x;
+        const distY = y - enemy.y;
+        const distance = Math.sqrt(distX * distX + distY * distY);
+        if (distance < enemySize) return true;
+    }
+    return false;
+}
 
-    container.appendChild(attackImg);
+function spawnEnemy(forcedName = null) {
+    const enemyNames = Object.keys(enemyDatabase);
+    const chosenName = forcedName || enemyNames[Math.floor(Math.random() * enemyNames.length)];
+    const maxHp = enemyDatabase[chosenName];
 
-    requestAnimationFrame(() => {
-        attackImg.style.transform = 'rotate(180deg)';
+    const img = document.createElement('img');
+    img.src = 'enemys/' + chosenName + '.gif';
+    img.style.position = 'absolute';
+    img.style.width = enemySize + 'px';  
+    img.style.height = enemySize + 'px'; 
+    img.style.pointerEvents = 'none';    
+    img.style.zIndex = '10'; 
+
+    let posX, posY;
+    let attempts = 0;
+
+    do {
+        posX = getRandomPosition(gameArea.x, gameArea.x + gameArea.size, enemySize);
+        posY = getRandomPosition(gameArea.y, gameArea.y + gameArea.size, enemySize);
+        attempts++;
+    } while (isOverlapping(posX, posY) && attempts < 50);
+
+    img.style.left = posX + 'px';
+    img.style.top = posY + 'px';
+
+    document.getElementById('game-container').appendChild(img);
+
+    activeEnemies.push({
+        element: img, name: chosenName, hp: maxHp, x: posX, y: posY
     });
-
-    setTimeout(() => {
-        attackImg.remove();
-    }, 150);
 }
 
-// Verifica se a posição do toque colidiu com a caixa de algum slime vivo
-function checkEnemyHit(hx, hy) {
-    const swordDamage = 8;
+function initEnemies() {
+    for (let i = 0; i < 3; i++) {
+        spawnEnemy('DeathSlime');
+    }
+}
 
-    for (let i = activeEnemies.length - 1; i >= 0; i--) {
-        const enemy = activeEnemies[i];
+// Executa a lógica de criar uma nova horda de monstros normais
+function triggerNextMonsterWave() {
+    const waveSize = Math.floor(Math.random() * (13 - 5 + 1)) + 5;
+    for (let i = 0; i < waveSize; i++) {
+        spawnEnemy();
+    }
+    waveCount++;
+}
 
-        if (hx >= enemy.x && hx <= enemy.x + enemySize &&
-            hy >= enemy.y && hy <= enemy.y + enemySize) {
-            
-            enemy.hp -= swordDamage; 
-
-            if (enemy.hp <= 0) {
-                if (typeof createDeathEffect === 'function') {
-                    createDeathEffect(enemy.x, enemy.y);
-                }
-                
-                // Força o incremento de pontos diretamente no escopo global
-                if (typeof addPoint === 'function') {
-                    addPoint();
-                }
-
-                enemy.element.remove();              
-                activeEnemies.splice(i, 1);          
-
-                // Checa imediatamente se era o último inimigo para invocar a horda aleatória
-                checkNextWave(); 
-            }
-            break; 
+function checkNextWave() {
+    if (activeEnemies.length === 0) {
+        // Se for logo após os 3 Slimes iniciais (waveCount === 0) OU a cada 10 ondas completadas
+        if (waveCount === 0 || waveCount % 10 === 0) {
+            spawnDroppedWeapon();
+        } else {
+            triggerNextMonsterWave();
         }
     }
+}
+
+// Instancia a nova espada no centro geométrico do mapa com efeito de pulso luminoso
+function spawnDroppedWeapon() {
+    isWeaponDropped = true;
+    const container = document.getElementById('game-container');
+    
+    // Lista de supostos IDs disponíveis na sua pasta de assets (ex: de '01' a '10')
+    const weaponIds = ['01', '02', '04', '05', '06', '07', '08', '09', '10'];
+    const randomId = weaponIds[Math.floor(Math.random() * weaponIds.length)];
+    // Sorteia um dano aleatório entre 10 e 25 para a nova arma
+    const randomDamage = Math.floor(Math.random() * (25 - 10 + 1)) + 10;
+
+    const groundWeapon = document.createElement('img');
+    groundWeapon.id = 'dropped-weapon-item';
+    groundWeapon.src = 'swords/' + randomId + '.png';
+    groundWeapon.style.position = 'absolute';
+    groundWeapon.style.width = '70px';
+    groundWeapon.style.height = '70px';
+    
+    // Centraliza perfeitamente no meio da gameArea
+    const centerX = gameArea.x + (gameArea.size / 2) - 35;
+    const centerY = gameArea.y + (gameArea.size / 2) - 35;
+    groundWeapon.style.left = centerX + 'px';
+    groundWeapon.style.top = centerY + 'px';
+    groundWeapon.style.zIndex = '15';
+    groundWeapon.style.imageRendering = 'pixelated';
+    
+    // Filtros CSS para criar o brilho branco intenso pulsante
+    groundWeapon.style.filter = 'drop-shadow(0 0 12px rgba(255, 255, 255, 1)) brightness(1.3)';
+    groundWeapon.style.transition = 'transform 0.4s ease-in-out';
+    
+    // Cria animação simples de flutuar/pulsar sem precisar de CSS externo
+    let pulseDirection = 1;
+    const pulseInterval = setInterval(() => {
+        if (!document.getElementById('dropped-weapon-item')) {
+            clearInterval(pulseInterval);
+            return;
+        }
+        groundWeapon.style.transform = `scale(${1 + (0.1 * pulseDirection)})`;
+        pulseDirection *= -1;
+    }, 400);
+
+    // Salva os dados sorteados na própria tag HTML para resgatarmos no clique
+    groundWeapon.dataset.weaponId = randomId;
+    groundWeapon.dataset.weaponDamage = randomDamage;
+
+    container.appendChild(groundWeapon);
 }

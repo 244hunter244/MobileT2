@@ -1,7 +1,11 @@
-let equippedWeapon = { id: '03', src: 'swords/03.png' };
-let hudWeaponImageElement = null;
+// A arma agora guarda também o seu dano atual
+let equippedWeapon = {
+    id: '03',
+    src: 'swords/03.png',
+    damage: 8
+};
 
-// Variável global para armazenar os pontos do jogador
+let hudWeaponImageElement = null;
 let playerPoints = 0;
 let pointsValueElement = null;
 
@@ -34,14 +38,11 @@ function createWeaponHUD() {
     hudBox.appendChild(hudWeaponImageElement);
     container.appendChild(hudBox);
     
-    // Cria o painel de pontos após criar a arma
     createPointsHUD();
 }
 
-// Cria os textos de pontuação no canto superior direito
 function createPointsHUD() {
     const container = document.getElementById('game-container');
-
     const scoreContainer = document.createElement('div');
     scoreContainer.style.position = 'absolute';
     scoreContainer.style.top = '20px';
@@ -50,14 +51,12 @@ function createPointsHUD() {
     scoreContainer.style.textAlign = 'right';
     scoreContainer.style.zIndex = '20';
 
-    // Texto fixo "PONTOS" em branco
     const pointsLabel = document.createElement('div');
     pointsLabel.innerText = 'PONTOS';
     pointsLabel.style.color = '#ffffff';
     pointsLabel.style.fontSize = '12px';
     pointsLabel.style.marginBottom = '8px';
 
-    // Número do contador aumentado e em amarelo
     pointsValueElement = document.createElement('div');
     pointsValueElement.innerText = playerPoints;
     pointsValueElement.style.color = '#ffff00';
@@ -68,7 +67,6 @@ function createPointsHUD() {
     container.appendChild(scoreContainer);
 }
 
-// Incrementa a pontuação e atualiza na tela na mesma hora
 function addPoint() {
     playerPoints += 1;
     if (pointsValueElement) {
@@ -76,9 +74,12 @@ function addPoint() {
     }
 }
 
-function changeEquippedWeapon(newId) {
+// Atualiza o ID, a Imagem no HUD e o Dano em todos os scripts do jogo
+function changeEquippedWeapon(newId, newDamage) {
     equippedWeapon.id = newId;
     equippedWeapon.src = 'swords/' + newId + '.png';
+    equippedWeapon.damage = newDamage;
+    
     if (hudWeaponImageElement) {
         hudWeaponImageElement.src = equippedWeapon.src;
     }
